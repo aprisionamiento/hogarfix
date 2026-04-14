@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HogarFix</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #2563eb;
+    --primary-light: #eff6ff;
+    --primary-dark: #1e40af;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+    --warning: #d97706;
+    --warning-light: #fffbeb;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+  .nav-logo { font-size: 1.4rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+  .nav-logo span { color: var(--gray-700); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { padding: 8px 16px; border-radius: var(--radius-sm); border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--gray-500); transition: all .15s; }
+  .nav-tab:hover { background: var(--gray-100); color: var(--gray-800); }
+  .nav-tab.active { background: var(--primary-light); color: var(--primary); }
+  .nav-user { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-md); transition: background .15s; }
+  .nav-user:hover { background: var(--gray-100); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .nav-user-name { font-size: 14px; font-weight: 500; color: var(--gray-700); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HOME */
+  .hero { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 3rem 1.5rem 2.5rem; text-align: center; }
+  .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.75rem; }
+  .hero p { font-size: 1rem; opacity: 0.85; margin-bottom: 1.75rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .search-bar { display: flex; background: white; border-radius: 50px; overflow: hidden; max-width: 520px; margin: 0 auto; box-shadow: var(--shadow-lg); }
+  .search-bar input { flex: 1; border: none; outline: none; padding: 14px 20px; font-size: 15px; color: var(--gray-800); }
+  .search-bar button { background: var(--primary); color: white; border: none; padding: 14px 24px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background .15s; }
+  .search-bar button:hover { background: var(--primary-dark); }
+
+  /* CATEGORIES */
+  .section { padding: 2rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .section-title { font-size: 1.2rem; font-weight: 700; color: var(--gray-800); margin-bottom: 1.25rem; }
+  .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; }
+  .cat-card { background: var(--white); border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.25rem 0.75rem; text-align: center; cursor: pointer; transition: all .15s; }
+  .cat-card:hover, .cat-card.selected { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .cat-card:hover .cat-icon, .cat-card.selected .cat-icon { background: var(--primary); }
+  .cat-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--gray-100); display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 10px; transition: background .15s; }
+  .cat-label { font-size: 12px; font-weight: 600; color: var(--gray-700); }
+
+  /* WORKERS */
+  .workers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .worker-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm); transition: all .2s; cursor: pointer; }
+  .worker-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--primary); }
+  .worker-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .worker-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; }
+  .worker-info h3 { font-size: 15px; font-weight: 700; color: var(--gray-800); }
+  .worker-info .role { font-size: 12px; color: var(--primary); font-weight: 600; background: var(--primary-light); padding: 2px 8px; border-radius: 50px; display: inline-block; margin-top: 3px; }
+  .worker-stars { display: flex; align-items: center; gap: 4px; margin: 8px 0; }
+  .stars { color: #f59e0b; font-size: 14px; }
+  .rating-num { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+  .reviews-count { font-size: 12px; color: var(--gray-400); }
+  .worker-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .meta-badge { font-size: 11px; padding: 3px 8px; border-radius: 50px; background: var(--gray-100); color: var(--gray-600); font-weight: 500; }
+  .meta-badge.avail { background: var(--success-light); color: var(--success); }
+  .meta-badge.busy { background: var(--warning-light); color: var(--warning); }
+  .worker-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--gray-100); padding-top: 12px; }
+  .tarifa { font-size: 16px; font-weight: 700; color: var(--gray-800); }
+  .tarifa small { font-size: 11px; font-weight: 400; color: var(--gray-400); }
+  .btn { padding: 9px 18px; border-radius: var(--radius-md); border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .15s; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+  .btn-outline:hover { background: var(--primary-light); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #15803d; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-gray { background: var(--gray-200); color: var(--gray-700); }
+  .btn-gray:hover { background: var(--gray-300); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+  .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; z-index: 1; }
+  .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--gray-400); padding: 4px 8px; border-radius: var(--radius-sm); }
+  .modal-close:hover { background: var(--gray-100); color: var(--gray-700); }
+  .modal-body { padding: 1.5rem; }
+  .modal-avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 1.5rem; }
+  .modal-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: white; flex-shrink: 0; }
+  .modal-worker-details h2 { font-size: 1.3rem; font-weight: 700; }
+  .modal-worker-details .role-badge { font-size: 13px; color: var(--primary); font-weight: 600; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .info-item { background: var(--gray-50); border-radius: var(--radius-md); padding: 12px; }
+  .info-item label { font-size: 11px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 4px; }
+  .info-item span { font-size: 14px; font-weight: 600; color: var(--gray-800); }
+  .section-sub { font-size: 14px; font-weight: 700; color: var(--gray-700); margin-bottom: 12px; }
+  .review-card { border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px; margin-bottom: 10px; }
+  .review-card .reviewer { font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 4px; }
+  .review-card .review-text { font-size: 13px; color: var(--gray-500); line-height: 1.5; }
+  .review-card .review-date { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+  .hire-form { background: var(--gray-50); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem; }
+  .hire-form label { font-size: 13px; font-weight: 600; color: var(--gray-600); display: block; margin-bottom: 6px; }
+  .hire-form textarea, .hire-form input, .hire-form select { width: 100%; border: 1px solid var(--gray-300); border-radius: var(--radius-sm); padding: 10px; font-size: 13px; font-family: inherit; resize: vertical; background: white; color: var(--gray-800); }
+  .hire-form textarea:focus, .hire-form input:focus, .hire-form select:focus { outline: none; border-color: var(--primary); }
+  .hire-form .form-group { margin-bottom: 12px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; padding: 1rem 1.5rem; border-top: 1px solid var(--gray-200); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--gray-900); color: white; padding: 12px 20px; border-radius: var(--radius-md); font-size: 14px; z-index: 999; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-lg); transform: translateY(80px); opacity: 0; transition: all .3s; max-width: 320px; }
+  .toast.success { background: var(--success); }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* PEDIDOS */
+  .pedidos-empty { text-align: center; padding: 4rem 2rem; color: var(--gray-400); }
+  .pedidos-empty .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+  .pedidos-empty p { font-size: 15px; margin-bottom: 1.5rem; }
+  .pedido-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 14px; box-shadow: var(--shadow-sm); }
+  .pedido-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .pedido-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
+  .pedido-info h3 { font-size: 15px; font-weight: 700; }
+  .pedido-info .sub { font-size: 12px; color: var(--gray-400); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 50px; }
+  .status-badge.pendiente { background: var(--warning-light); color: var(--warning); }
+  .status-badge.confirmado { background: var(--success-light); color: var(--success); }
+  .status-badge.completado { background: var(--primary-light); color: var(--primary); }
+  .status-badge.cancelado { background: var(--danger-light); color: var(--danger); }
+  .pedido-desc { font-size: 13px; color: var(--gray-500); margin-bottom: 12px; line-height: 1.5; }
+  .pedido-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--gray-100); padding-top: 12px; }
+  .pedido-fecha { font-size: 12px; color: var(--gray-400); }
+  .pedido-actions { display: flex; gap: 8px; }
+  .pedido-actions .btn { padding: 6px 14px; font-size: 12px; }
+
+  /* PERFIL */
+  .profile-card { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden; box-shadow: var(--shadow-sm); max-width: 480px; }
+  .profile-banner { height: 80px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+  .profile-body { padding: 0 1.5rem 1.5rem; }
+  .profile-avatar-wrap { margin-top: -32px; margin-bottom: 12px; }
+  .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; border: 3px solid white; }
+  .profile-name { font-size: 1.2rem; font-weight: 700; color: var(--gray-800); }
+  .profile-email { font-size: 13px; color: var(--gray-400); margin-bottom: 1rem; }
+  .profile-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 1rem; }
+  .stat-box { background: var(--gray-50); border-radius: var(--radius-md); padding: 10px; text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 700; color: var(--gray-800); }
+  .stat-label { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+
+  /* FILTER BAR */
+  .filter-bar { display: flex; align-items: center; gap: 10px; padding: 1rem 1.5rem; background: white; border-bottom: 1px solid var(--gray-200); overflow-x: auto; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip { padding: 6px 14px; border-radius: 50px; border: 1.5px solid var(--gray-200); background: white; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--gray-600); transition: all .15s; white-space: nowrap; }
+  .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+  .filter-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .filter-label { font-size: 13px; font-weight: 600; color: var(--gray-400); white-space: nowrap; }
+
+  /* CONFIRM */
+  .confirm-box { text-align: center; padding: 1rem 0; }
+  .confirm-box .icon { font-size: 48px; margin-bottom: 1rem; }
+  .confirm-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+  .confirm-box p { font-size: 14px; color: var(--gray-500); }
+
+  /* MISC */
+  .empty-results { text-align: center; padding: 3rem; color: var(--gray-400); }
+  .empty-results .icon { font-size: 40px; margin-bottom: 12px; }
+  .divider { border: none; border-top: 1px solid var(--gray-200); margin: 1rem 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 50px; }
+  .full-width-bar { background: var(--white); border-bottom: 1px solid var(--gray-200); }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.5rem; }
+    .workers-grid { grid-template-columns: 1fr; }
+    .categories-grid { grid-template-columns: repeat(4, 1fr); }
+    .info-grid { grid-template-columns: 1fr; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 8px 10px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Hogar<span>Fix</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Inicio</button>
+    <button class="nav-tab" onclick="showPage('trabajadores')">Trabajadores</button>
+    <button class="nav-tab" onclick="showPage('pedidos')">Pedidos <span id="badge-pedidos" style="background:var(--primary);color:white;font-size:10px;padding:1px 6px;border-radius:50px;margin-left:4px;display:none;"></span></button>
+    <button class="nav-tab" onclick="showPage('perfil')">Perfil</button>
+  </div>
+  <div class="nav-user" onclick="showPage('perfil')">
+    <div class="avatar">VE</div>
+    <span class="nav-user-name" style="display:none" id="nav-name">Valeria Espino</span>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>Tu hogar en buenas manos</h1>
+    <p>Encuentra electricistas, plomeros, pintores y más. Con calificaciones reales y contratación directa.</p>
+    <div class="search-bar">
+      <input type="text" id="home-search" placeholder="¿Qué servicio necesitas?" onkeydown="if(event.key==='Enter')doSearch()">
+      <button onclick="doSearch()">Buscar</button>
+    </div>
+  </div>
+  <div class="section">
+    <p class="section-title">Categorías de servicio</p>
+    <div class="categories-grid" id="home-cats"></div>
+  </div>
+  <div class="section" style="padding-top:0">
+    <p class="section-title">Trabajadores destacados</p>
+    <div class="workers-grid" id="home-featured"></div>
+  </div>
+</div>
+
+<!-- TRABAJADORES -->
+<div id="page-trabajadores" class="page">
+  <div class="full-width-bar">
+    <div class="filter-bar" id="filter-bar"></div>
+  </div>
+  <div class="section">
+    <div id="workers-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <p class="section-title" style="margin:0" id="workers-count-label">Todos los trabajadores</p>
+      <select id="sort-select" onchange="renderWorkers()" style="border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:6px 10px;font-size:13px;color:var(--gray-600);background:white;cursor:pointer;">
+        <option value="rating">Mejor calificados</option>
+        <option value="price_asc">Precio: menor a mayor</option>
+        <option value="price_desc">Precio: mayor a menor</option>
+        <option value="exp">Más experiencia</option>
+      </select>
+    </div>
+    <div class="workers-grid" id="workers-list"></div>
+    <div id="workers-empty" class="empty-results" style="display:none">
+      <div class="icon">🔍</div>
+      <p>No se encontraron trabajadores en esta categoría.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PEDIDOS -->
+<div id="page-pedidos" class="page">
+  <div class="section">
+    <p class="section-title">Mis pedidos</p>
+    <div id="pedidos-list"></div>
+  </div>
+</div>
+
+<!-- PERFIL -->
+<div id="page-perfil" class="page">
+  <div class="section">
+    <p class="section-title">Mi perfil</p>
+    <div class="profile-card">
+      <div class="profile-banner"></div>
+      <div class="profile-body">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">VE</div>
+        </div>
+        <div class="profile-name">Valeria Espino</div>
+        <div class="profile-email">valeria.espino@gmail.com</div>
+        <hr class="divider">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+          <div><span style="color:var(--gray-400)">Teléfono</span><br><strong>+52 618 123 4567</strong></div>
+          <div><span style="color:var(--gray-400)">Ciudad</span><br><strong>Gómez Palacio, Dgo</strong></div>
+          <div><span style="color:var(--gray-400)">Miembro desde</span><br><strong>Enero 2024</strong></div>
+          <div><span style="color:var(--gray-400)">Estado</span><br><strong style="color:var(--success)">Activo ✓</strong></div>
+        </div>
+        <div class="profile-stats" id="profile-stats">
+          <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Pedidos</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-comp">0</div><div class="stat-label">Completados</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-pend">0</div><div class="stat-label">Pendientes</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;">
+      <p class="section-title">Historial reciente</p>
+      <div id="perfil-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TRABAJADOR -->
+<div class="modal-overlay" id="worker-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Perfil del trabajador</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2>Confirmar contratación</h2>
+      <button class="modal-close" onclick="closeConfirm()">✕</button>
+    </div>
+    <div class="modal-body" id="confirm-body"></div>
+    <div class="modal-actions" id="confirm-actions"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES = [
+  { id:'electricista', label:'Electricistas', icon:'⚡' },
+  { id:'plomero',      label:'Plomeros',      icon:'🔧' },
+  { id:'albanil',      label:'Albañiles',      icon:'🏗️' },
+  { id:'pintor',       label:'Pintores',       icon:'🎨' },
+  { id:'jardinero',    label:'Jardineros',     icon:'🌿' },
+  { id:'limpieza',     label:'Limpieza',       icon:'🧹' },
+  { id:'carpintero',   label:'Carpinteros',    icon:'🪵' },
+  { id:'cerrajero',    label:'Cerrajeros',     icon:'🔑' },
+];
+
+const COLORS = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#65a30d'];
+
+const WORKERS = [
+  { id:1, nombre:'Carlos Medina',    cat:'electricista', exp:8,  zona:'Centro',        tarifa:250, disponible:true,  rating:4.9, reviews:42, color:'#2563eb' },
+  { id:2, nombre:'Ana Rodríguez',    cat:'electricista', exp:5,  zona:'Norte',         tarifa:200, disponible:false, rating:4.6, reviews:28, color:'#2563eb' },
+  { id:3, nombre:'Pedro Sánchez',    cat:'plomero',      exp:12, zona:'Sur',           tarifa:300, disponible:true,  rating:4.8, reviews:63, color:'#7c3aed' },
+  { id:4, nombre:'Luis Flores',      cat:'plomero',      exp:4,  zona:'Centro',        tarifa:220, disponible:true,  rating:4.4, reviews:17, color:'#7c3aed' },
+  { id:5, nombre:'Miguel Torres',    cat:'albanil',      exp:15, zona:'Oriente',       tarifa:350, disponible:true,  rating:4.7, reviews:55, color:'#db2777' },
+  { id:6, nombre:'Roberto Ávila',    cat:'albanil',      exp:7,  zona:'Norte',         tarifa:280, disponible:false, rating:4.3, reviews:22, color:'#db2777' },
+  { id:7, nombre:'Jorge Ramírez',    cat:'pintor',       exp:10, zona:'Centro',        tarifa:180, disponible:true,  rating:4.9, reviews:71, color:'#059669' },
+  { id:8, nombre:'Diana López',      cat:'pintor',       exp:3,  zona:'Sur',           tarifa:150, disponible:true,  rating:4.5, reviews:14, color:'#059669' },
+  { id:9, nombre:'Emilio Vargas',    cat:'jardinero',    exp:6,  zona:'Poniente',      tarifa:200, disponible:true,  rating:4.6, reviews:33, color:'#65a30d' },
+  { id:10, nombre:'Lucía Herrera',   cat:'jardinero',    exp:9,  zona:'Norte',         tarifa:220, disponible:true,  rating:4.8, reviews:48, color:'#65a30d' },
+  { id:11, nombre:'Carmen Jiménez',  cat:'limpieza',     exp:5,  zona:'Centro',        tarifa:160, disponible:true,  rating:4.7, reviews:89, color:'#0891b2' },
+  { id:12, nombre:'Rosa Gutiérrez',  cat:'limpieza',     exp:8,  zona:'Sur',           tarifa:180, disponible:false, rating:4.5, reviews:61, color:'#0891b2' },
+  { id:13, nombre:'Antonio Mora',    cat:'carpintero',   exp:20, zona:'Oriente',       tarifa:400, disponible:true,  rating:5.0, reviews:37, color:'#d97706' },
+  { id:14, nombre:'Felipe Cruz',     cat:'carpintero',   exp:11, zona:'Centro',        tarifa:320, disponible:true,  rating:4.7, reviews:29, color:'#d97706' },
+  { id:15, nombre:'Sergio Núñez',    cat:'cerrajero',    exp:7,  zona:'Norte',         tarifa:250, disponible:true,  rating:4.8, reviews:44, color:'#dc2626' },
+  { id:16, nombre:'Hector Castillo', cat:'cerrajero',    exp:3,  zona:'Sur',           tarifa:200, disponible:true,  rating:4.3, reviews:18, color:'#dc2626' },
+];
+
+const REVIEWS_DATA = {
+  1: [{autor:'María G.',texto:'Excelente trabajo, muy puntual y ordenado.',fecha:'Hace 2 días'},{autor:'Luis R.',texto:'Resolvió el problema rápido, muy profesional.',fecha:'Hace 1 semana'},{autor:'Ana P.',texto:'Muy recomendable, precios justos.',fecha:'Hace 2 semanas'}],
+  3: [{autor:'Carlos M.',texto:'Pedro es el mejor plomero que he contratado.',fecha:'Hace 3 días'},{autor:'Sandra T.',texto:'Llegó a tiempo y dejó todo limpio.',fecha:'Hace 1 semana'}],
+  7: [{autor:'Gabriela H.',texto:'Jorge es un artista pintando, quedó perfecto.',fecha:'Ayer'},{autor:'Roberto C.',texto:'Muy detallista y trabajador.',fecha:'Hace 3 días'},{autor:'Elena S.',texto:'Transformó mi sala completamente.',fecha:'Hace 1 semana'}],
+  13: [{autor:'Familia Morales',texto:'Antonio es increíble, hizo toda la cocina.',fecha:'Hace 1 día'},{autor:'Ingeniería López',texto:'Trabajo de calidad profesional.',fecha:'Hace 5 días'}],
+};
+
+let activeCat = 'all';
+let pedidos = JSON.parse(localStorage.getItem('hf_pedidos')||'[]');
+let currentWorker = null;
+let pendingHire = null;
+
+function initials(name){ return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase(); }
+
+function stars(r){ const full=Math.floor(r); const half=r-full>=0.5; let s=''; for(let i=0;i<full;i++) s+='★'; if(half) s+='½'; for(let i=full+(half?1:0);i<5;i++) s+='☆'; return s; }
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const tabs=['home','trabajadores','pedidos','perfil'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(p)]?.classList.add('active');
+  if(p==='pedidos') renderPedidos();
+  if(p==='perfil') renderPerfil();
+  if(p==='trabajadores') renderWorkers();
+}
+
+function doSearch(){
+  const q = document.getElementById('home-search').value.trim().toLowerCase();
+  const match = CATEGORIES.find(c=>c.label.toLowerCase().includes(q)||c.id.includes(q));
+  if(match){ activeCat=match.id; } else { activeCat='all'; }
+  showPage('trabajadores');
+  updateFilterBar();
+  renderWorkers();
+}
+
+function setCat(id){
+  activeCat = id;
+  updateFilterBar();
+  renderWorkers();
+}
+
+function updateFilterBar(){
+  document.querySelectorAll('.filter-chip').forEach(el=>{
+    el.classList.toggle('active', el.dataset.cat===activeCat);
+  });
+}
+
+function buildFilterBar(){
+  const fb = document.getElementById('filter-bar');
+  fb.innerHTML = '<span class="filter-label">Filtrar:</span>';
+  const all = document.createElement('button');
+  all.className = 'filter-chip'+(activeCat==='all'?' active':'');
+  all.dataset.cat = 'all';
+  all.textContent = 'Todos';
+  all.onclick = ()=>setCat('all');
+  fb.appendChild(all);
+  CATEGORIES.forEach(c=>{
+    const chip = document.createElement('button');
+    chip.className = 'filter-chip'+(activeCat===c.id?' active':'');
+    chip.dataset.cat = c.id;
+    chip.textContent = c.icon+' '+c.label;
+    chip.onclick = ()=>setCat(c.id);
+    fb.appendChild(chip);
+  });
+}
+
+function renderWorkers(){
+  const list = document.getElementById('workers-list');
+  const empty = document.getElementById('workers-empty');
+  const sortVal = document.getElementById('sort-select').value;
+  let data = activeCat==='all' ? [...WORKERS] : WORKERS.filter(w=>w.cat===activeCat);
+  if(sortVal==='rating') data.sort((a,b)=>b.rating-a.rating);
+  else if(sortVal==='price_asc') data.sort((a,b)=>a.tarifa-b.tarifa);
+  else if(sortVal==='price_desc') data.sort((a,b)=>b.tarifa-a.tarifa);
+  else if(sortVal==='exp') data.sort((a,b)=>b.exp-a.exp);
+  document.getElementById('workers-count-label').textContent = data.length+' trabajador'+(data.length!==1?'es':'');
+  list.innerHTML=''; empty.style.display='none';
+  if(!data.length){ empty.style.display='block'; return; }
+  data.forEach(w=>{ list.appendChild(workerCard(w)); });
+}
+
+function workerCard(w, featured=false){
+  const cat = CATEGORIES.find(c=>c.id===w.cat);
+  const div = document.createElement('div');
+  div.className = 'worker-card';
+  const revs = REVIEWS_DATA[w.id]||[];
+  div.innerHTML=`
+    <div class="worker-header">
+      <div class="worker-avatar" style="background:${w.color}">${initials(w.nombre)}</div>
+      <div class="worker-info">
+        <h3>${w.nombre}</h3>
+        <span class="role">${cat.icon} ${cat.label.slice(0,-1)||cat.label}</span>
+      </div>
+    </div>
+    <div class="worker-stars">
+      <span class="stars">${stars(w.rating)}</span>
+      <span class="rating-num">${w.rating}</span>
+      <span class="reviews-count">(${w.reviews} reseñas)</span>
+    </div>
+    <div class="worker-meta">
+      <span class="meta-badge">📍 ${w.zona}</span>
+      <span class="meta-badge">🏅 ${w.exp} años exp.</span>
+      <span class="meta-badge ${w.disponible?'avail':'busy'}">${w.disponible?'✓ Disponible':'⏳ Ocupado'}</span>
+    </div>
+    <div class="worker-footer">
+      <div class="tarifa">$${w.tarifa}<small>/hora</small></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="openWorkerModal(${w.id})">Ver perfil</button>
+        ${w.disponible?`<button class="btn btn-primary" onclick="event.stopPropagation();openHireModal(${w.id})">Contratar</button>`:'<button class="btn btn-gray" disabled>No disponible</button>'}
+      </div>
+    </div>`;
+  return div;
+}
+
+function openWorkerModal(id){
+  currentWorker = WORKERS.find(w=>w.id===id);
+  const w = currentWorker;
+  const cat = CATEGORIES.find(c=>c.id===w.cat);
+  const revs = REVIEWS_DATA[w.id]||[];
+  document.getElementById('modal-title').textContent = w.nombre;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="modal-avatar-row">
+      <div class="modal-avatar" style="background:${w.color}">${initials(w.nombre)}</div>
+      <div class="modal-worker-details">
+        <h2>${w.nombre}</h2>
+        <div class="role-badge">${cat.icon} ${cat.label}</div>
+        <div class="worker-stars" style="margin-top:6px">
+          <span class="stars">${stars(w.rating)}</span>
+          <span class="rating-num">${w.rating}</span>
+          <span class="reviews-count">(${w.reviews} reseñas)</span>
+        </div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><label>Experiencia</label><span>${w.exp} años</span></div>
+      <div class="info-item"><label>Zona</label><span>📍 ${w.zona}</span></div>
+      <div class="info-item"><label>Tarifa</label><span>$${w.tarifa}/hora</span></div>
+      <div class="info-item"><label>Disponibilidad</label><span style="color:${w.disponible?'var(--success)':'var(--warning)'}">${w.disponible?'✓ Disponible ahora':'⏳ Ocupado'}</span></div>
+    </div>
+    <hr class="divider">
+    <p class="section-sub">Reseñas de clientes</p>
+    ${revs.length?revs.map(r=>`<div class="review-card"><div class="reviewer">👤 ${r.autor} <span class="stars" style="font-size:12px">★★★★★</span></div><div class="review-text">${r.texto}</div><div class="review-date">${r.fecha}</div></div>`).join(''):'<p style="color:var(--gray-400);font-size:13px">Sin reseñas aún.</p>'}
+  `;
+  document.getElementById('modal-actions').innerHTML = w.disponible
+    ? `<button class="btn btn-outline" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="closeModal();openHireModal(${w.id})">Contratar ahora</button>`
+    : `<button class="btn btn-gray" onclick="closeModal()">Cerrar</button>`;
+  document.getElementById('worker-modal').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('worker-modal').classList.remove('open'); }
+
+function openHireModal(id){
+  currentWorker = WORKERS.find(w=>w.id===id);
+  const w = currentWorker;
+  const cat = CATEGORIES.find(c=>c.id===w.cat);
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('confirm-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:1rem;padding:1rem;background:var(--gray-50);border-radius:var(--radius-md);">
+      <div class="worker-avatar" style="background:${w.color};width:48px;height:48px;font-size:16px">${initials(w.nombre)}</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">${w.nombre}</div>
+        <div style="font-size:12px;color:var(--gray-400)">${cat.icon} ${cat.label} · $${w.tarifa}/hora</div>
+      </div>
+    </div>
+    <div class="hire-form">
+      <div class="form-group">
+        <label>Fecha de servicio</label>
+        <input type="date" id="hire-date" min="${today}" value="${today}">
+      </div>
+      <div class="form-group">
+        <label>Hora</label>
+        <select id="hire-time">
+          <option>08:00 AM</option><option>09:00 AM</option><option>10:00 AM</option>
+          <option>11:00 AM</option><option>12:00 PM</option><option>01:00 PM</option>
+          <option>02:00 PM</option><option>03:00 PM</option><option>04:00 PM</option>
+          <option>05:00 PM</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Descripción del trabajo</label>
+        <textarea id="hire-desc" rows="3" placeholder="Describe brevemente lo que necesitas..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" id="hire-addr" placeholder="Ej: Calle Juárez 123, Col. Centro">
+      </div>
+    </div>`;
+  document.getElementById('confirm-actions').innerHTML=`
+    <button class="btn btn-outline" onclick="closeConfirm()">Cancelar</button>
+    <button class="btn btn-success" onclick="confirmHire(${w.id})">✓ Confirmar contratación</button>`;
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('open'); }
+
+function confirmHire(id){
+  const w = WORKERS.find(x=>x.id===id);
+  const desc = document.getElementById('hire-desc').value.trim();
+  const date = document.getElementById('hire-date').value;
+  const time = document.getElementById('hire-time').value;
+  const addr = document.getElementById('hire-addr').value.trim();
+  if(!desc){ showToast('Por favor describe el trabajo requerido.',''); return; }
+  if(!addr){ showToast('Por favor ingresa la dirección.',''); return; }
+  const pedido = {
+    id: Date.now(),
+    workerId: id,
+    workerName: w.nombre,
+    workerColor: w.color,
+    workerCat: w.cat,
+    tarifa: w.tarifa,
+    desc, date, time, addr,
+    status: 'pendiente',
+    createdAt: new Date().toLocaleDateString('es-MX')
+  };
+  pedidos.unshift(pedido);
+  savePedidos();
+  closeConfirm();
+  updateBadge();
+  showToast('¡Contratación realizada! '+w.nombre+' ha sido notificado.','success');
+}
+
+function savePedidos(){ localStorage.setItem('hf_pedidos', JSON.stringify(pedidos)); }
+
+function updateBadge(){
+  const pend = pedidos.filter(p=>p.status==='pendiente').length;
+  const badge = document.getElementById('badge-pedidos');
+  badge.textContent = pend;
+  badge.style.display = pend>0 ? 'inline' : 'none';
+}
+
+function renderPedidos(){
+  const list = document.getElementById('pedidos-list');
+  if(!pedidos.length){
+    list.innerHTML=`<div class="pedidos-empty"><div class="empty-icon">📦</div><p>No tienes pedidos aún.</p><button class="btn btn-primary" onclick="showPage('trabajadores')">Explorar trabajadores</button></div>`;
+    return;
+  }
+  list.innerHTML='';
+  pedidos.forEach((p,i)=>{
+    const cat = CATEGORIES.find(c=>c.id===p.workerCat);
+    const div = document.createElement('div');
+    div.className='pedido-card';
+    const statusLabels={pendiente:'Pendiente',confirmado:'Confirmado',completado:'Completado',cancelado:'Cancelado'};
+    div.innerHTML=`
+      <div class="pedido-header">
+        <div class="pedido-avatar" style="background:${p.workerColor}">${initials(p.workerName)}</div>
+        <div class="pedido-info" style="flex:1">
+          <h3>${p.workerName}</h3>
+          <div class="sub">${cat?cat.icon+' ':''} ${cat?cat.label:''} · $${p.tarifa}/hora</div>
+        </div>
+        <span class="status-badge ${p.status}">${statusLabels[p.status]||p.status}</span>
+      </div>
+      <div class="pedido-desc">📝 ${p.desc}<br>📍 ${p.addr}<br>📅 ${p.date} a las ${p.time}</div>
+      <div class="pedido-footer">
+        <span class="pedido-fecha">Solicitado el ${p.createdAt}</span>
+        <div class="pedido-actions">
+          ${p.status==='pendiente'?`<button class="btn btn-success" onclick="updateStatus(${i},'confirmado')">Confirmar</button><button class="btn btn-danger" onclick="updateStatus(${i},'cancelado')">Cancelar</button>`:''}
+          ${p.status==='confirmado'?`<button class="btn btn-primary" onclick="updateStatus(${i},'completado')">Completado</button><button class="btn btn-danger" onclick="updateStatus(${i},'cancelado')">Cancelar</button>`:''}
+        </div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function updateStatus(i, status){
+  pedidos[i].status = status;
+  savePedidos();
+  updateBadge();
+  renderPedidos();
+  const msgs={confirmado:'Pedido confirmado.',completado:'¡Servicio marcado como completado!',cancelado:'Pedido cancelado.'};
+  showToast(msgs[status]||'Estado actualizado.', status==='cancelado'?'':'success');
+}
+
+function renderPerfil(){
+  const total = pedidos.length;
+  const comp = pedidos.filter(p=>p.status==='completado').length;
+  const pend = pedidos.filter(p=>p.status==='pendiente'||p.status==='confirmado').length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-comp').textContent=comp;
+  document.getElementById('stat-pend').textContent=pend;
+  const hist = document.getElementById('perfil-history');
+  if(!pedidos.length){ hist.innerHTML='<p style="color:var(--gray-400);font-size:14px">Sin historial aún.</p>'; return; }
+  hist.innerHTML='';
+  pedidos.slice(0,5).forEach(p=>{
+    const cat=CATEGORIES.find(c=>c.id===p.workerCat);
+    const statusLabels={pendiente:'Pendiente',confirmado:'Confirmado',completado:'Completado',cancelado:'Cancelado'};
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-100)';
+    div.innerHTML=`<div style="width:36px;height:36px;border-radius:50%;background:${p.workerColor};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0">${initials(p.workerName)}</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:600">${p.workerName}</div><div style="font-size:12px;color:var(--gray-400)">${p.date}</div></div>
+    <span class="status-badge ${p.status}">${statusLabels[p.status]}</span>`;
+    hist.appendChild(div);
+  });
+}
+
+function showToast(msg, type=''){
+  const t=document.getElementById('toast');
+  t.textContent = msg;
+  t.className='toast'+(type?' '+type:'');
+  void t.offsetWidth;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+function buildHomeCats(){
+  const grid=document.getElementById('home-cats');
+  CATEGORIES.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='cat-card';
+    div.innerHTML=`<div class="cat-icon">${c.icon}</div><div class="cat-label">${c.label}</div>`;
+    div.onclick=()=>{ activeCat=c.id; showPage('trabajadores'); updateFilterBar(); renderWorkers(); };
+    grid.appendChild(div);
+  });
+}
+
+function buildHomeFeatured(){
+  const featured=WORKERS.filter(w=>w.disponible).sort((a,b)=>b.rating-a.rating).slice(0,4);
+  const grid=document.getElementById('home-featured');
+  featured.forEach(w=>grid.appendChild(workerCard(w)));
+}
+
+// INIT
+buildFilterBar();
+buildHomeCats();
+buildHomeFeatured();
+updateBadge();
+</script>
+</body>
+</html>
